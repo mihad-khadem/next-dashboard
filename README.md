@@ -1,36 +1,253 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+```markdown
+# ⚡ Next.js Advanced Dashboard (Frontend)
 
-## Getting Started
+A **modern, enterprise-grade admin dashboard** built with **Next.js 15**, **TypeScript**, **Tailwind CSS**, and **Shadcn/UI** — engineered for performance, scalability, and developer experience.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Overview
+
+This project is a **frontend-only implementation** of a dynamic dashboard UI designed for modern SaaS platforms and admin panels.  
+It includes **route-group-based architecture**, **dark/light mode**, **state management**, **animations**, and **data visualization** support.
+
+---
+
+## ✨ Features
+
+| Type             | Feature                                                     |
+| ---------------- | ----------------------------------------------------------- |
+| ⚙️ Framework     | Built with **Next.js 15 (App Router)** & **TypeScript**     |
+| 🎨 Styling       | **Tailwind CSS**, **Shadcn/UI**, and custom utility classes |
+| 🌗 Theming       | Dark/Light mode toggle via `next-themes`                    |
+| 🧠 State         | Managed by **Zustand** for sidebar/theme                    |
+| 🔄 Data          | Handled by **React Query + Axios** with interceptors        |
+| 🧾 Validation    | **React Hook Form** + **Zod** for reliable input handling   |
+| 📊 Charts        | **Recharts / ApexCharts** for interactive analytics         |
+| 💫 Animations    | **Framer Motion** for smooth transitions                    |
+| 🌍 i18n          | Multi-language support using **i18next**                    |
+| 🧩 UI Components | Modular design system powered by **Shadcn/UI**              |
+| 🔐 Structure     | Clean & scalable **App Router-based folder architecture**   |
+
+---
+
+## 🧱 Folder Structure
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+app/
+└─ (dashboard)/
+├─ layout.tsx
+├─ page.tsx
+├─ users/
+│ └─ page.tsx
+├─ products/
+│ └─ page.tsx
+├─ reports/
+│ └─ page.tsx
+└─ settings/
+└─ page.tsx
+components/
+├─ layout/
+│ ├─ sidebar.tsx
+│ ├─ navbar.tsx
+│ └─ theme-toggle.tsx
+├─ ui/
+├─ charts/
+├─ tables/
+└─ widgets/
+hooks/
+└─ use-theme.ts
+store/
+└─ use-sidebar.ts
+lib/
+├─ utils.ts
+├─ axios-client.ts
+└─ theme-provider.tsx
+styles/
+└─ globals.css
+types/
+└─ index.d.ts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+````
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This structure is designed for **clarity, modularity, and long-term maintainability.**
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🧰 Tech Stack
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Category | Tools |
+|-----------|-------|
+| **Framework** | Next.js 15 (App Router) |
+| **Language** | TypeScript |
+| **Styling** | Tailwind CSS + Shadcn/UI |
+| **Theme** | next-themes |
+| **State Management** | Zustand |
+| **Data Fetching** | React Query + Axios |
+| **Forms & Validation** | React Hook Form + Zod |
+| **Charts** | ApexCharts / Recharts |
+| **Animation** | Framer Motion |
+| **Icons** | Lucide React / Radix Icons |
+| **i18n** | i18next + react-i18next |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## ⚙️ Installation
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+# 1️⃣ Clone the repository
+git clone https://github.com/mihad-khadem/react-dashboard.git
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+# 2️⃣ Move into the project directory
+cd react-dashboard
+
+# 3️⃣ Install dependencies
+npm install
+
+# 4️⃣ Run the development server
+npm run dev
+````
+
+Then visit 👉 **[http://localhost:3000](http://localhost:3000)**
+
+---
+
+## 🧩 Environment Setup
+
+If needed, create a `.env.local` file in the root directory for your configuration.
+
+Example:
+
+```bash
+NEXT_PUBLIC_API_URL=https://api.example.com
+```
+
+---
+
+## 🎨 Styling Configuration
+
+Tailwind and Shadcn/UI are pre-configured.
+To extend or add new Shadcn components:
+
+```bash
+npx shadcn@latest add button card input dialog table dropdown-menu
+```
+
+Global styles live in `styles/globals.css`.
+
+---
+
+## 🧠 State Management
+
+Zustand manages UI-level states like:
+
+- Sidebar open/close state
+- Theme preference
+- Layout toggles
+
+Example hook (`store/use-sidebar.ts`):
+
+```ts
+import { create } from "zustand";
+
+interface SidebarState {
+  isOpen: boolean;
+  toggle: () => void;
+}
+
+export const useSidebar = create<SidebarState>((set) => ({
+  isOpen: true,
+  toggle: () => set((state) => ({ isOpen: !state.isOpen })),
+}));
+```
+
+---
+
+## 🌗 Theme Provider
+
+Dark/light mode uses `next-themes`.
+
+```tsx
+// lib/theme-provider.tsx
+"use client";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  return <NextThemesProvider attribute="class">{children}</NextThemesProvider>;
+}
+```
+
+---
+
+## 📊 Charts
+
+To use charts:
+
+```tsx
+import dynamic from "next/dynamic";
+
+const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
+```
+
+Supports multiple chart types (line, area, bar, pie).
+
+---
+
+## 🌍 i18n Setup
+
+To add multilingual support:
+
+```bash
+npm install i18next react-i18next
+```
+
+Create translation files under `/public/locales/{lang}/common.json`.
+
+---
+
+## 🚧 Roadmap
+
+- [ ] Add authentication (NextAuth / Clerk)
+- [ ] Add server actions for CRUD
+- [ ] Integrate Prisma + PostgreSQL backend
+- [ ] Role-based access (RBAC)
+- [ ] Analytics dashboard (Realtime)
+- [ ] Deploy on Vercel with CI/CD
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repo
+2. Create a feature branch:
+
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+
+3. Commit and push your changes
+4. Open a Pull Request 🚀
+
+---
+
+## 📜 License
+
+Licensed under the **MIT License** — free for personal & commercial use.
+
+---
+
+## 👤 Author
+
+**Mihad Khadem**
+📍 Dhaka, Bangladesh
+🌐 [Portfolio](https://mihad-khadem.github.io/portfolio.website/)
+🐙 [GitHub](https://github.com/mihad-khadem)
+💼 [LinkedIn](https://www.linkedin.com/in/mihad-khadem-6510b6222/)
+
+> 💬 “Built for developers who aim for clean architecture, performance, and scalability.”
+
+```
+
+---
+
+Would you like me to generate a **short GitHub profile version** (like a summarized `README` for the repo’s top section) — or keep this one as your main `README.md`?
+```
