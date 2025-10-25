@@ -1,40 +1,58 @@
 "use client";
 
-import { ReactNode } from "react";
-import { Layout, Menu } from "antd";
+import { ReactNode, useState } from "react";
+import { Layout } from "antd";
 import {
   UserOutlined,
   ShopOutlined,
   FileTextOutlined,
 } from "@ant-design/icons";
-import Link from "next/link";
+import Sidebar from "@/components/layout/Sidebar";
+import DashboardHeader from "@/components/layout/Header";
 
-const { Header, Sider, Content } = Layout;
+const { Sider, Content } = Layout;
 
 type Props = {
   children: ReactNode;
 };
 
 export default function DashBoardLayout({ children }: Props) {
+  const menuItems = [
+    {
+      key: "1",
+      label: "Users",
+      href: "/dashboard/users",
+      icon: <UserOutlined />,
+    },
+    {
+      key: "2",
+      label: "Products",
+      href: "/dashboard/products",
+      icon: <ShopOutlined />,
+    },
+    {
+      key: "3",
+      label: "Reports",
+      href: "/dashboard/reports",
+      icon: <FileTextOutlined />,
+    },
+  ];
+
+  // control collapsed state here and pass to Header and Sider
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      <Sider breakpoint="lg" collapsedWidth={0}>
+      <Sider breakpoint="lg" collapsedWidth={0} collapsed={collapsed}>
         <div className="logo text-white text-xl p-4">Dashboard</div>
-        <Menu theme="dark" mode="inline" defaultSelectedKeys={["1"]}>
-          <Menu.Item key="1" icon={<UserOutlined />}>
-            <Link href="/dashboard/users">Users</Link>
-          </Menu.Item>
-          <Menu.Item key="2" icon={<ShopOutlined />}>
-            <Link href="/dashboard/products">Products</Link>
-          </Menu.Item>
-          <Menu.Item key="3" icon={<FileTextOutlined />}>
-            <Link href="/dashboard/reports">Reports</Link>
-          </Menu.Item>
-        </Menu>
+        <Sidebar items={menuItems} />
       </Sider>
 
       <Layout>
-        <Header style={{ background: "#fff", padding: 0 }}>Header</Header>
+        <DashboardHeader
+          collapsed={collapsed}
+          onToggle={() => setCollapsed((s) => !s)}
+        />
         <Content style={{ margin: "16px" }}>{children}</Content>
       </Layout>
     </Layout>
