@@ -244,10 +244,3 @@ Licensed under the **MIT License** — free for personal & commercial use.
 💼 [LinkedIn](https://www.linkedin.com/in/mihad-khadem-6510b6222/)
 
 > 💬 “Built for developers who aim for clean architecture, performance, and scalability.”
-
-```
-
----
-
-Would you like me to generate a **short GitHub profile version** (like a summarized `README` for the repo’s top section) — or keep this one as your main `README.md`?
-```
