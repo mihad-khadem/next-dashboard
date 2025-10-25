@@ -2,6 +2,7 @@
 "use client";
 
 import { Menu, Drawer } from "antd";
+import type { MenuProps } from "antd";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MenuItem } from "@/types/dashboard.types";
@@ -21,13 +22,53 @@ export default function Sidebar({
 }: Props) {
   const pathname = usePathname();
 
-  const menuItems = items.map((item) => ({
-    key: item.key,
-    icon: item.icon,
-    label: <Link href={item.href}>{item.label}</Link>,
-  }));
+  type MenuItemType = Required<MenuProps>["items"][number];
 
-  const selectedKey = items.find((item) => pathname.startsWith(item.href))?.key;
+  const convertMenuItem = (item: MenuItem): MenuItemType => {
+    const menuItem = {
+      key: item.key,
+      icon: item.icon,
+      label: <Link href={item.href}>{item.label}</Link>,
+    };
+
+    if (item.children) {
+      return {
+        ...menuItem,
+        children: item.children.map(convertMenuItem),
+      };
+    }
+
+    return menuItem;
+  };
+
+  const menuItems = items.map(convertMenuItem);
+
+  const findSelectedKey = (
+    items: MenuItem[],
+    path: string
+  ): string | undefined => {
+    for (const item of items) {
+      if (path.startsWith(item.href)) {
+        return item.key;
+      }
+      if (item.children) {
+        const childKey = findSelectedKey(item.children, path);
+        if (childKey) return childKey;
+      }
+    }
+    return undefined;
+  };
+
+  const selectedKey = findSelectedKey(items, pathname);
+
+  const sidebarContent = (
+    <Menu
+      theme="dark"
+      mode="inline"
+      selectedKeys={selectedKey ? [selectedKey] : []}
+      items={menuItems}
+    />
+  );
 
   if (isMobile) {
     return (
@@ -39,23 +80,10 @@ export default function Sidebar({
         open={!collapsed}
         bodyStyle={{ padding: 0 }}
       >
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={selectedKey ? [selectedKey] : []}
-          items={menuItems}
-        />
+        {sidebarContent}
       </Drawer>
     );
   }
 
-  return (
-    <Menu
-      theme="dark"
-      mode="inline"
-      inlineCollapsed={collapsed}
-      selectedKeys={selectedKey ? [selectedKey] : []}
-      items={menuItems}
-    />
-  );
+  return sidebarContent;
 }

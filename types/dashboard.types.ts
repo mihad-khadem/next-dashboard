@@ -6,4 +6,5 @@ export type MenuItem = {
   label: string;
   href: string;
   icon?: ReactNode;
+  children?: MenuItem[];
 };
