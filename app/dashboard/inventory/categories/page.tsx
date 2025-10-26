@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Table, Button, Input, Space, Card, Tree } from "antd";
+import StatWidget from "@/components/widgets/StatWidget";
+import OverviewChart from "@/components/charts/OverviewChart";
 import { SearchOutlined, PlusOutlined } from "@ant-design/icons";
 import type { DataNode } from "antd/es/tree";
 
@@ -95,7 +97,9 @@ export default function CategoriesPage() {
       render: (_: unknown, record: Category) => (
         <Space size="middle">
           <Button type="link">Edit</Button>
-          <Button type="link" danger>Delete</Button>
+          <Button type="link" danger>
+            Delete
+          </Button>
         </Space>
       ),
     },
@@ -108,6 +112,13 @@ export default function CategoriesPage() {
         <Button type="primary" icon={<PlusOutlined />}>
           Add Category
         </Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+        <StatWidget title="Categories" value="24" />
+        <StatWidget title="Total Products" value="650" />
+        <StatWidget title="Avg. Products/Category" value="27" />
+        <StatWidget title="Top Category" value="Electronics" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -143,5 +154,12 @@ export default function CategoriesPage() {
           />
         </Card>
       </div>
+
+      <div className="mb-6">
+        <Card title="Overview Chart">
+          <OverviewChart />
+        </Card>
+      </div>
     </div>
   );
+}

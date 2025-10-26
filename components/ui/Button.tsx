@@ -20,7 +20,7 @@ export default function Button({
       type={type}
       onClick={onClick}
       className={
-        "inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 focus:outline-none " +
+        "inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 focus:outline-none transition-all duration-200 shadow-sm hover:scale-[1.03] active:scale-100 " +
         className
       }
     >

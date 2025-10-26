@@ -1,0 +1,32 @@
+/* Card, StatWidget, Button transitions */
+.transition-all {
+  transition-property: all;
+}
+.hover\:shadow-lg:hover {
+  box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.1);
+}
+.hover\:scale-\[1\.03\]:hover {
+  transform: scale(1.03);
+}
+.active\:scale-100:active {
+  transform: scale(1);
+}
+.shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+}
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: -400px 0;
+  }
+  100% {
+    background-position: 400px 0;
+  }
+}
+
+.skeleton-loader {
+  display: inline-block;
+  min-height: 1em;
+  background-repeat: no-repeat;
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.2s ease-in-out infinite;
+}

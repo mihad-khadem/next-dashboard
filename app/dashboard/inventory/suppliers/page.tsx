@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import { Table, Button, Input, Space, Card, Tag } from "antd";
-import { SearchOutlined, PlusOutlined, PhoneOutlined, MailOutlined } from "@ant-design/icons";
+import {
+  SearchOutlined,
+  PlusOutlined,
+  PhoneOutlined,
+  MailOutlined,
+} from "@ant-design/icons";
 
 interface Supplier {
   id: number;
@@ -98,7 +103,9 @@ export default function SuppliersPage() {
         <Space size="middle">
           <Button type="link">View Orders</Button>
           <Button type="link">Edit</Button>
-          <Button type="link" danger>Delete</Button>
+          <Button type="link" danger>
+            Delete
+          </Button>
         </Space>
       ),
     },
@@ -137,3 +144,4 @@ export default function SuppliersPage() {
       </Card>
     </div>
   );
+}

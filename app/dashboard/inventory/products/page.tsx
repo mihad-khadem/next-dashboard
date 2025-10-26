@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Table, Button, Input, Space, Card, Tag } from "antd";
+import StatWidget from "@/components/widgets/StatWidget";
+import OverviewChart from "@/components/charts/OverviewChart";
 import { SearchOutlined, PlusOutlined } from "@ant-design/icons";
 import type { TableProps } from "antd";
 
@@ -91,7 +93,11 @@ export default function ProductsPage() {
           "low-stock": "orange",
           "out-of-stock": "red",
         };
-        return <Tag color={colors[status]}>{status.replace("-", " ").toUpperCase()}</Tag>;
+        return (
+          <Tag color={colors[status as keyof typeof colors]}>
+            {status.replace("-", " ").toUpperCase()}
+          </Tag>
+        );
       },
     },
     {
@@ -100,7 +106,9 @@ export default function ProductsPage() {
       render: (_, record) => (
         <Space size="middle">
           <Button type="link">Edit</Button>
-          <Button type="link" danger>Delete</Button>
+          <Button type="link" danger>
+            Delete
+          </Button>
         </Space>
       ),
     },
@@ -113,6 +121,13 @@ export default function ProductsPage() {
         <Button type="primary" icon={<PlusOutlined />}>
           Add Product
         </Button>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+        <StatWidget title="Total SKUs" value="450" />
+        <StatWidget title="Low Stock" value="28" />
+        <StatWidget title="Out of Stock" value="12" />
+        <StatWidget title="Total Value" value="$124,230" />
       </div>
 
       <Card>
@@ -137,5 +152,14 @@ export default function ProductsPage() {
           }}
         />
       </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+        <Card title="Stock Overview">
+          <OverviewChart className="h-[220px]" />
+        </Card>
+        <Card title="Value by Category">
+          <OverviewChart className="h-[220px]" />
+        </Card>
+      </div>
     </div>
   );
+}

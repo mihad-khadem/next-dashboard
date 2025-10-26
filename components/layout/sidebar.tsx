@@ -43,31 +43,47 @@ export default function Sidebar({
 
   const menuItems = items.map(convertMenuItem);
 
-  const findSelectedKey = (
+  const findSelectedKeys = (
     items: MenuItem[],
-    path: string
-  ): string | undefined => {
+    path: string,
+    parentKey?: string
+  ): string[] => {
+    const keys: string[] = [];
+
     for (const item of items) {
       if (path.startsWith(item.href)) {
-        return item.key;
-      }
-      if (item.children) {
-        const childKey = findSelectedKey(item.children, path);
-        if (childKey) return childKey;
+        if (parentKey) {
+          keys.push(parentKey);
+        }
+        keys.push(item.key);
+
+        if (item.children) {
+          const childKeys = findSelectedKeys(item.children, path, item.key);
+          keys.push(...childKeys);
+        }
       }
     }
-    return undefined;
+
+    return keys;
   };
 
-  const selectedKey = findSelectedKey(items, pathname);
+  const selectedKeys = findSelectedKeys(items, pathname);
 
   const sidebarContent = (
-    <Menu
-      theme="dark"
-      mode="inline"
-      selectedKeys={selectedKey ? [selectedKey] : []}
-      items={menuItems}
-    />
+    <nav
+      style={{
+        fontFamily:
+          'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+      }}
+    >
+      <Menu
+        theme="dark"
+        mode="inline"
+        selectedKeys={selectedKeys}
+        defaultOpenKeys={selectedKeys}
+        items={menuItems}
+      />
+    </nav>
   );
 
   if (isMobile) {

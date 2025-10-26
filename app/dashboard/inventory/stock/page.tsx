@@ -1,7 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Table, Button, Input, Space, Card, Tag, Row, Col, Statistic } from "antd";
+import {
+  Table,
+  Button,
+  Input,
+  Space,
+  Card,
+  Tag,
+  Row,
+  Col,
+  Statistic,
+} from "antd";
 import {
   SearchOutlined,
   PlusOutlined,
@@ -58,7 +68,8 @@ export default function StockPage() {
       title: "Product Name",
       dataIndex: "productName",
       key: "productName",
-      sorter: (a: StockItem, b: StockItem) => a.productName.localeCompare(b.productName),
+      sorter: (a: StockItem, b: StockItem) =>
+        a.productName.localeCompare(b.productName),
     },
     {
       title: "SKU",
@@ -86,14 +97,18 @@ export default function StockPage() {
           "low-stock": "orange",
           "out-of-stock": "red",
         };
-        return <Tag color={colors[status]}>{status.replace("-", " ").toUpperCase()}</Tag>;
+        return (
+          <Tag color={colors[status]}>
+            {status.replace("-", " ").toUpperCase()}
+          </Tag>
+        );
       },
     },
     {
       title: "Last Updated",
       dataIndex: "lastUpdated",
       key: "lastUpdated",
-      sorter: (a: StockItem, b: StockItem) => 
+      sorter: (a: StockItem, b: StockItem) =>
         new Date(a.lastUpdated).getTime() - new Date(b.lastUpdated).getTime(),
     },
     {
@@ -110,9 +125,10 @@ export default function StockPage() {
 
   const stockStats = {
     total: initialData.length,
-    inStock: initialData.filter(item => item.status === "in-stock").length,
-    lowStock: initialData.filter(item => item.status === "low-stock").length,
-    outOfStock: initialData.filter(item => item.status === "out-of-stock").length,
+    inStock: initialData.filter((item) => item.status === "in-stock").length,
+    lowStock: initialData.filter((item) => item.status === "low-stock").length,
+    outOfStock: initialData.filter((item) => item.status === "out-of-stock")
+      .length,
   };
 
   return (
@@ -190,3 +206,4 @@ export default function StockPage() {
       </Card>
     </div>
   );
+}
