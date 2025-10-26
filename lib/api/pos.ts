@@ -1,6 +1,6 @@
 import axios from "axios";
 import type { Product, Order, Customer, ProductVariant } from "../../types/pos";
-
+// lib/api/pos.ts
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
 export const posApi = {

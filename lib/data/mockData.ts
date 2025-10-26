@@ -184,6 +184,7 @@ export const recentOrders: Order[] = [
     paymentStatus: "completed",
     paymentMethod: "card",
     createdAt: "2023-10-25T14:30:00Z",
+    updatedAt: "2023-10-25T15:00:00Z",
   },
   {
     id: "ord2",

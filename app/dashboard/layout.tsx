@@ -13,8 +13,8 @@ import {
   FileTextOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-import Sidebar from "@/components/layout/Sidebar";
-import DashboardHeader from "@/components/layout/Header";
+import Sidebar from "../../components/layout/Sidebar";
+import DashboardHeader from "../../components/layout/Header";
 
 const { Sider, Content } = Layout;
 
@@ -29,6 +29,14 @@ export default function DashBoardLayout({ children }: Props) {
       label: "Dashboard",
       href: "/dashboard",
       icon: <DashboardOutlined />,
+      children: [
+        {
+          key: "users",
+          label: "Users",
+          href: "/dashboard/users",
+          icon: <TeamOutlined />,
+        },
+      ],
     },
     {
       key: "2",

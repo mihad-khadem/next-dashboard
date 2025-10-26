@@ -1,7 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { Card, Table, Button, Input, Modal, Form, message } from "antd";
+import { useState, useEffect } from "react";
+import {
+  Card,
+  Table,
+  Button,
+  Input,
+  Modal,
+  Form,
+  message,
+  InputNumber,
+} from "antd";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import type { Product } from "@/types/pos";
 import { posApi } from "@/lib/api/pos";
@@ -12,6 +21,11 @@ export default function ProductsPage() {
   const [modalVisible, setModalVisible] = useState(false);
   const [form] = Form.useForm();
   const [searchTerm, setSearchTerm] = useState("");
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const fetchProducts = async () => {
     try {
@@ -26,57 +40,74 @@ export default function ProductsPage() {
     }
   };
 
-  const handleCreate = async (values: any) => {
+  const handleCreateOrUpdate = async (values: any) => {
     try {
-      await posApi.createProduct(values);
-      message.success("Product created successfully");
+      if (editingProduct) {
+        await posApi.updateProduct(editingProduct.id, values);
+        message.success("Product updated successfully");
+      } else {
+        await posApi.createProduct(values);
+        message.success("Product created successfully");
+      }
       setModalVisible(false);
       form.resetFields();
+      setEditingProduct(null);
       fetchProducts();
     } catch (error) {
-      console.error("Failed to create product:", error);
-      message.error("Failed to create product");
+      console.error("Failed to save product:", error);
+      message.error("Failed to save product");
     }
   };
+
+  const handleEdit = (product: Product) => {
+    setEditingProduct(product);
+    form.setFieldsValue(product);
+    setModalVisible(true);
+  };
+
+  const handleDelete = async (product: Product) => {
+    try {
+      await posApi.deleteProduct(product.id);
+      message.success("Product deleted successfully");
+      fetchProducts();
+    } catch (error) {
+      console.error("Failed to delete product:", error);
+      message.error("Failed to delete product");
+    }
+  };
+
+  const filteredProducts = products.filter((p) =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const columns = [
     {
       title: "Name",
       dataIndex: "name",
-      sorter: true,
-      filterable: true,
+      sorter: (a: Product, b: Product) => a.name.localeCompare(b.name),
     },
-    {
-      title: "SKU",
-      dataIndex: "sku",
-    },
+    { title: "SKU", dataIndex: "sku" },
     {
       title: "Price",
       dataIndex: "price",
       render: (price: number) => `$${price.toFixed(2)}`,
-      sorter: true,
+      sorter: (a: Product, b: Product) => a.price - b.price,
     },
     {
       title: "Stock",
       dataIndex: "stock",
-      sorter: true,
+      sorter: (a: Product, b: Product) => a.stock - b.stock,
     },
-    {
-      title: "Category",
-      dataIndex: "category",
-      filters: [
-        // TODO: Add dynamic category filters
-      ],
-    },
+    { title: "Category", dataIndex: "category" },
     {
       title: "Actions",
       key: "actions",
       render: (_: any, record: Product) => (
         <div className="space-x-2">
-          <Button size="small" onClick={() => {}}>
+          <Button size="small" onClick={() => handleEdit(record)}>
             Edit
           </Button>
-          <Button size="small" danger onClick={() => {}}>
+          <Button size="small" danger onClick={() => handleDelete(record)}>
             Delete
           </Button>
         </div>
@@ -100,7 +131,11 @@ export default function ProductsPage() {
             <Button
               type="primary"
               icon={<PlusOutlined />}
-              onClick={() => setModalVisible(true)}
+              onClick={() => {
+                form.resetFields();
+                setEditingProduct(null);
+                setModalVisible(true);
+              }}
             >
               Add Product
             </Button>
@@ -109,51 +144,59 @@ export default function ProductsPage() {
       >
         <Table
           columns={columns}
-          dataSource={products}
+          dataSource={filteredProducts}
           rowKey="id"
           loading={loading}
         />
       </Card>
 
       <Modal
-        title="Add Product"
+        title={editingProduct ? "Edit Product" : "Add Product"}
         open={modalVisible}
         onOk={() => form.submit()}
-        onCancel={() => setModalVisible(false)}
+        onCancel={() => {
+          setModalVisible(false);
+          setEditingProduct(null);
+          form.resetFields();
+        }}
       >
-        <Form form={form} layout="vertical" onFinish={handleCreate}>
+        <Form form={form} layout="vertical" onFinish={handleCreateOrUpdate}>
           <Form.Item
             name="name"
             label="Product Name"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: "Please enter product name" }]}
           >
             <Input />
           </Form.Item>
 
-          <Form.Item name="sku" label="SKU" rules={[{ required: true }]}>
+          <Form.Item
+            name="sku"
+            label="SKU"
+            rules={[{ required: true, message: "Please enter SKU" }]}
+          >
             <Input />
           </Form.Item>
 
           <Form.Item
             name="price"
-            label="Price"
-            rules={[{ required: true, type: "number", min: 0 }]}
+            label="Price ($)"
+            rules={[{ required: true, message: "Please enter price" }]}
           >
-            <Input type="number" prefix="$" />
+            <InputNumber style={{ width: "100%" }} min={0} />
           </Form.Item>
 
           <Form.Item
             name="stock"
             label="Initial Stock"
-            rules={[{ required: true, type: "number", min: 0 }]}
+            rules={[{ required: true, message: "Please enter initial stock" }]}
           >
-            <Input type="number" />
+            <InputNumber style={{ width: "100%" }} min={0} />
           </Form.Item>
 
           <Form.Item
             name="category"
             label="Category"
-            rules={[{ required: true }]}
+            rules={[{ required: true, message: "Please enter category" }]}
           >
             <Input />
           </Form.Item>

@@ -11,7 +11,7 @@ export interface Product {
   createdAt?: string;
   updatedAt?: string;
 }
-
+// old pos types.ts
 export interface Customer {
   id: string;
   name: string;

@@ -5,7 +5,7 @@ import { Card, Table, Button, Input, Modal, Form, message, Tag } from "antd";
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import type { Customer } from "@/types/pos";
 import { posApi } from "@/lib/api/pos";
-
+// dashboard/pos/customers/page.tsx
 export default function CustomersPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);

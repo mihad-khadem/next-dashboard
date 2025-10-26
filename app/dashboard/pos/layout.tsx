@@ -1,5 +1,5 @@
 "use client";
-
+// dashboard/pos/layout.tsx
 import { usePathname } from "next/navigation";
 import { Row, Col, Card, Menu } from "antd";
 import {
