@@ -13,8 +13,8 @@ import {
   FileTextOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
-import Sidebar from "../../components/layout/Sidebar";
-import DashboardHeader from "../../components/layout/Header";
+import Sidebar from "@/components/layout/Sidebar"; // use alias consistently for imports to prevent path issues on deployment
+import DashboardHeader from "@/components/layout/Header";
 // DahsboardLayout.tsx
 const { Sider, Content } = Layout;
 
