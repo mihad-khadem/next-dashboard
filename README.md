@@ -1,11 +1,3 @@
-Perfect — so you want the **frontend README** rewritten to reflect that your app uses **Redux Toolkit (for state management)** and **Axios (for API requests)** — not Zustand/React Query.
-
-Here’s your **final, production-grade `README.md`**, fully aligned with your project’s goals, structure, and backend integration plan.
-It focuses on **Redux + Axios**, includes your **entire MVP requirements**, and sets a professional tone for GitHub.
-
----
-
-```markdown
 # ⚡ POS & Inventory Management Dashboard (Frontend)
 
 A **modern, enterprise-grade dashboard** built with **Next.js 15**, **TypeScript**, **Tailwind CSS**, **Shadcn/UI**, **Redux Toolkit**, and **Axios**.  
@@ -65,12 +57,61 @@ The **MVP phase** includes all essential modules to operate a real-world POS sys
 | 🌍 **i18n (optional)**    | i18next integration-ready                                   |
 | ⚡ **Performance**        | Code splitting, lazy loading, SSR-ready                     |
 
----
-
 ## 🧱 Folder Structure
+
 ```
 
-````
+next-dashboard/
+│
+├── app/
+│ └── dashboard/ # Dashboard pages (users, settings, analytics)
+│
+├── components/
+│ ├── layout/ # Sidebar, Header, DashboardLayout
+│ ├── ui/ # Reusable UI components (buttons, cards, modals)
+│ └── widgets/ # Dashboard widgets and small components
+│
+├── data/
+│ └── mockData.ts # Sample or mock data for development
+│
+├── hooks/
+│ └── useAuth.ts # Custom hooks (authentication, state management)
+│
+├── lib/
+│ └── utils.ts # Utility functions and helpers
+│
+├── public/
+│ ├── images/ # Static images, logos, icons
+│ └── fonts/ # Custom fonts
+│
+├── store/
+│ └── slices/ # Redux Toolkit slices for state management
+│
+├── styles/
+│ └── globals.css # Global CSS styles
+│
+├── types/
+│ └── dashboard.types.ts # TypeScript type definitions
+│
+├── .gitignore
+├── README.md
+├── next.config.ts
+├── package.json
+├── tailwind.config.js
+├── tsconfig.json
+└── postcss.config.js
+
+
+```
+
+**Highlights:**
+
+- `app/` contains Next.js pages using the app router.
+- `components/` is organized by layout, UI, and widgets for reusability.
+- `store/` manages state with Redux Toolkit slices.
+- `types/` ensures type safety across the project.
+
+If you want, I can also **add a mini diagram showing the folder hierarchy visually**—it looks very clean in a README. Do you want me to do that too?
 
 This structure supports **clean separation of concerns** and **scalable Redux logic**.
 
@@ -90,7 +131,7 @@ npm install
 
 # 4️⃣ Start the development server
 npm run dev
-````
+```
 
 Then open 👉 **[http://localhost:3000](http://localhost:3000)**
 
@@ -271,3 +312,7 @@ npm run format     # Format with Prettier
 💼 [LinkedIn](https://www.linkedin.com/in/mihad-khadem-6510b6222/)
 
 > 💬 “A frontend designed to scale with your business — clean, efficient, and integration-ready.”
+
+```
+
+```
