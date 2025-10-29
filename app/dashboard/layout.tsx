@@ -15,7 +15,7 @@ import {
 } from "@ant-design/icons";
 import Sidebar from "../../components/layout/Sidebar";
 import DashboardHeader from "../../components/layout/Header";
-
+// DahsboardLayout.tsx
 const { Sider, Content } = Layout;
 
 type Props = {

@@ -2,7 +2,7 @@
 
 import { Modal } from "antd";
 import { CrudForm } from "./CrudForm";
-import type { FormField } from "@/types";
+import type { FormField } from "@/types/forms";
 
 interface CrudModalProps {
   title: string;

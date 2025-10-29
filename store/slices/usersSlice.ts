@@ -1,103 +1,23 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
-import { api } from "@/lib/api";
 import { UserProfile } from "@/types";
 import { customers } from "@/lib/data/mockData";
+import { auth } from "@/lib/api/auth";
+// =======================
+// TYPES
+// =======================
+export type UserRole = "admin" | "manager" | "staff" | "customer" | "user";
+export type UserStatus = "active" | "inactive";
 
-// ----- Auth/Profile Thunks -----
-export const fetchCurrentUser = createAsyncThunk(
-  "users/fetchCurrentUser",
-  async () => {
-    try {
-      return await api.auth.getProfile();
-    } catch (error) {
-      // fallback mock user if backend fails
-      return {
-        id: "fallback",
-        name: "Demo Admin",
-        email: "admin@example.com",
-        role: "admin",
-      } as UserProfile;
-    }
-  }
-);
-
-export const login = createAsyncThunk(
-  "users/login",
-  async (credentials: { email: string; password: string }) => {
-    return api.auth.login(credentials);
-  }
-);
-
-export const logout = createAsyncThunk("users/logout", async () => {
-  return api.auth.logout();
-});
-
-// ----- Dashboard Users (Mock/Fallback API) -----
 export interface DashboardUser {
   id: string;
   name: string;
   email: string;
-  role: string;
-  status: string;
+  role: UserRole;
+  status: UserStatus;
   avatar?: string;
   lastActive: string;
 }
 
-// Fetch users (real API or fallback)
-export const fetchUsers = createAsyncThunk("users/fetchUsers", async () => {
-  try {
-    return await api.auth.getProfile(); // replace with your /users API later
-  } catch {
-    // fallback to mock
-    return customers.map((c, i) => ({
-      id: c.id,
-      name: c.name,
-      email: c.email,
-      role: "user",
-      status: "active",
-      avatar: `https://i.pravatar.cc/150?u=${c.id}`,
-      lastActive: new Date(Date.now() - i * 10000000).toISOString(),
-    }));
-  }
-});
-
-export const addUser = createAsyncThunk(
-  "users/addUser",
-  async (user: Omit<DashboardUser, "id">) => {
-    try {
-      const response = await api.auth.getProfile(); // replace with POST /users
-      return response;
-    } catch {
-      return { ...user, id: `u${Math.floor(Math.random() * 1000)}` };
-    }
-  }
-);
-
-export const updateUser = createAsyncThunk(
-  "users/updateUser",
-  async (user: DashboardUser) => {
-    try {
-      const response = await api.auth.getProfile(); // replace with PUT /users/:id
-      return response;
-    } catch {
-      return user;
-    }
-  }
-);
-
-export const deleteUser = createAsyncThunk(
-  "users/deleteUser",
-  async (id: string) => {
-    try {
-      const response = await api.auth.getProfile(); // replace with DELETE /users/:id
-      return response;
-    } catch {
-      return id;
-    }
-  }
-);
-
-// ----- Slice -----
 interface UsersState {
   currentUser: UserProfile | null;
   loading: boolean;
@@ -106,6 +26,9 @@ interface UsersState {
   usersLoading: boolean;
 }
 
+// =======================
+// INITIAL STATE
+// =======================
 const initialState: UsersState = {
   currentUser: null,
   loading: false,
@@ -114,6 +37,89 @@ const initialState: UsersState = {
   usersLoading: false,
 };
 
+// =======================
+// ASYNC THUNKS
+// =======================
+
+// Fetch currently logged-in user
+export const fetchCurrentUser = createAsyncThunk<
+  UserProfile,
+  void,
+  { rejectValue: string }
+>("users/fetchCurrentUser", async (_, thunkAPI) => {
+  try {
+    return await auth?.getProfile();
+  } catch (error: unknown) {
+    const message =
+      error instanceof Error ? error.message : "Failed to fetch profile";
+    return thunkAPI.rejectWithValue(message);
+  }
+});
+
+// Mock fetch all users
+export const fetchUsers = createAsyncThunk<
+  DashboardUser[],
+  void,
+  { rejectValue: string }
+>("users/fetchUsers", async (_, thunkAPI) => {
+  try {
+    const mapped: DashboardUser[] = customers.map((c, i) => ({
+      id: c.id,
+      name: c.name,
+      email: c.email,
+      role: "user",
+      status: "active",
+      avatar: `https://i.pravatar.cc/150?u=${c.id}`,
+      lastActive: new Date(Date.now() - i * 10000000).toISOString(),
+    }));
+    return mapped;
+  } catch (error: unknown) {
+    return thunkAPI.rejectWithValue("Failed to fetch users");
+  }
+});
+
+// Add user (mock)
+export const addUser = createAsyncThunk<
+  DashboardUser,
+  Omit<DashboardUser, "id">,
+  { rejectValue: string }
+>("users/addUser", async (user, thunkAPI) => {
+  try {
+    return { ...user, id: `u${Math.floor(Math.random() * 1000)}` };
+  } catch (error: unknown) {
+    return thunkAPI.rejectWithValue("Failed to add user");
+  }
+});
+
+// Update user (mock)
+export const updateUser = createAsyncThunk<
+  DashboardUser,
+  DashboardUser,
+  { rejectValue: string }
+>("users/updateUser", async (user, thunkAPI) => {
+  try {
+    return user;
+  } catch (error: unknown) {
+    return thunkAPI.rejectWithValue("Failed to update user");
+  }
+});
+
+// Delete user (mock)
+export const deleteUser = createAsyncThunk<
+  string,
+  string,
+  { rejectValue: string }
+>("users/deleteUser", async (id, thunkAPI) => {
+  try {
+    return id;
+  } catch (error: unknown) {
+    return thunkAPI.rejectWithValue("Failed to delete user");
+  }
+});
+
+// =======================
+// SLICE
+// =======================
 const usersSlice = createSlice({
   name: "users",
   initialState,
@@ -123,8 +129,8 @@ const usersSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Auth/Profile
     builder
+      // fetchCurrentUser
       .addCase(fetchCurrentUser.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -135,53 +141,37 @@ const usersSlice = createSlice({
       })
       .addCase(fetchCurrentUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || "Failed to fetch user profile";
+        state.error = action.payload || "Failed to fetch profile";
       })
-      .addCase(login.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(login.fulfilled, (state) => {
-        state.loading = false;
-      })
-      .addCase(login.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || "Login failed";
-      })
-      .addCase(logout.fulfilled, (state) => {
-        state.currentUser = null;
-      });
 
-    // Dashboard Users
-    builder
+      // fetchUsers
       .addCase(fetchUsers.pending, (state) => {
         state.usersLoading = true;
+        state.error = null;
       })
-      .addCase(
-        fetchUsers.fulfilled,
-        (state, action: PayloadAction<DashboardUser[]>) => {
-          state.usersLoading = false;
-          state.users = action.payload;
-        }
-      )
-      .addCase(fetchUsers.rejected, (state) => {
+      .addCase(fetchUsers.fulfilled, (state, action) => {
         state.usersLoading = false;
+        state.users = action.payload;
       })
-      .addCase(
-        addUser.fulfilled,
-        (state, action: PayloadAction<DashboardUser>) => {
-          state.users.push(action.payload);
-        }
-      )
-      .addCase(
-        updateUser.fulfilled,
-        (state, action: PayloadAction<DashboardUser>) => {
-          state.users = state.users.map((u) =>
-            u.id === action.payload.id ? action.payload : u
-          );
-        }
-      )
-      .addCase(deleteUser.fulfilled, (state, action: PayloadAction<string>) => {
+      .addCase(fetchUsers.rejected, (state, action) => {
+        state.usersLoading = false;
+        state.error = action.payload || "Failed to fetch users";
+      })
+
+      // addUser
+      .addCase(addUser.fulfilled, (state, action) => {
+        state.users.push(action.payload);
+      })
+
+      // updateUser
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.users = state.users.map((u) =>
+          u.id === action.payload.id ? action.payload : u
+        );
+      })
+
+      // deleteUser
+      .addCase(deleteUser.fulfilled, (state, action) => {
         state.users = state.users.filter((u) => u.id !== action.payload);
       });
   },

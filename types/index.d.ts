@@ -26,7 +26,7 @@ export interface Sale {
     price: number;
   }[];
   total: number;
-  paymentMethod: "cash" | "card";
+  paymentMethod: "cash" | "card" | "mobile" | "bank";
   status: "pending" | "completed" | "cancelled";
   createdAt: string;
   updatedAt: string;
@@ -134,4 +134,22 @@ export interface FinanceReport {
     totalProfit: number;
     profitMargin: number;
   };
+}
+export interface Sale {
+  id: string;
+  customerId: string;
+  items: { productId: string; quantity: number; price: number }[];
+  discount: number;
+  tax: number;
+  total: number;
+  status:
+    | "created"
+    | "pending"
+    | "completed"
+    | "cancelled"
+    | "paid"
+    | "refunded";
+  paymentMethod: string;
+  createdAt: string;
+  updatedAt?: string;
 }

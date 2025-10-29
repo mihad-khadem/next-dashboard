@@ -47,7 +47,7 @@ export default function DataTable<T>({
                     <td key={col.key} className="p-2 text-sm">
                       <Skeleton
                         height={18}
-                        width={col.key === "actions" ? 60 : 100}
+                        width={`${col.key} === actions ? 60 : 100`}
                       />
                     </td>
                   ))}

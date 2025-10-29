@@ -14,6 +14,7 @@ import {
 import { PlusOutlined, SearchOutlined } from "@ant-design/icons";
 import type { Product } from "@/types/pos";
 import { posApi } from "@/lib/api/pos";
+import { productsSample } from "@/data";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -31,12 +32,14 @@ export default function ProductsPage() {
     try {
       setLoading(true);
       const response = await posApi.getProducts();
+
       setProducts(response.data);
     } catch (error) {
       console.error("Failed to fetch products:", error);
       message.error("Failed to load products");
     } finally {
       setLoading(false);
+      setProducts(productsSample); // Fallback to sample data
     }
   };
 

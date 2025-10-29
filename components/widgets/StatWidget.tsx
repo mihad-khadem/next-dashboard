@@ -6,6 +6,7 @@ type StatWidgetProps = {
   value: string | number;
   className?: string;
   children?: React.ReactNode;
+  icon?: React.ReactNode;
   loading?: boolean;
 };
 
@@ -25,7 +26,7 @@ export default function StatWidget({
     >
       <div className="text-sm text-gray-500">{title}</div>
       <div className="text-2xl font-bold mt-2">
-        {loading ? <Skeleton height={32} width={80} /> : value}
+        {loading ? <Skeleton height={"32"} width={"80"} /> : value}
       </div>
       {children}
     </div>

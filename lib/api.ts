@@ -1,3 +1,4 @@
+// src/lib/api.ts
 import { notification } from "antd";
 import {
   Product,
@@ -10,18 +11,19 @@ import {
   SalesReport,
   InventoryReport,
   FinanceReport,
-  LoginCredentials,
-  UserProfile,
 } from "../types";
 
+// Custom API error interface
 interface ApiError extends Error {
   status?: number;
   details?: ApiErrorDetails;
 }
 
+// Base API URL
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
 
+// Handle API responses and throw structured errors
 async function handleResponse<T>(response: Response): Promise<T> {
   const data = await response.json();
 
@@ -35,6 +37,7 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return data;
 }
 
+// Generic fetch wrapper
 export async function fetchApi<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -47,13 +50,12 @@ export async function fetchApi<T>(
         "Content-Type": "application/json",
         ...options.headers,
       },
-      credentials: "include", // For handling cookies/JWT
+      credentials: "include", // keep this if using cookies/JWT
     });
 
     return await handleResponse<T>(response);
   } catch (error) {
     if (error instanceof Error) {
-      // Show error notification
       notification.error({
         message: "Error",
         description: error.message || "An error occurred",
@@ -63,46 +65,19 @@ export async function fetchApi<T>(
   }
 }
 
-export async function get<T>(endpoint: string): Promise<T> {
-  return fetchApi<T>(endpoint);
-}
+// HTTP helper methods
+export const get = <T>(endpoint: string) => fetchApi<T>(endpoint);
+export const post = <T>(endpoint: string, data: unknown) =>
+  fetchApi<T>(endpoint, { method: "POST", body: JSON.stringify(data) });
+export const put = <T>(endpoint: string, data: unknown) =>
+  fetchApi<T>(endpoint, { method: "PUT", body: JSON.stringify(data) });
+export const del = <T>(endpoint: string) =>
+  fetchApi<T>(endpoint, { method: "DELETE" });
 
-export async function post<T>(endpoint: string, data: unknown): Promise<T> {
-  return fetchApi<T>(endpoint, {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
-}
+// ======================
+// FEATURED API ENDPOINTS
+// ======================
 
-export async function put<T>(endpoint: string, data: unknown): Promise<T> {
-  return fetchApi<T>(endpoint, {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
-}
-
-export async function del<T>(endpoint: string): Promise<T> {
-  return fetchApi<T>(endpoint, {
-    method: "DELETE",
-  });
-}
-
-// Authentication helpers
-export const auth = {
-  async login(credentials: LoginCredentials) {
-    return post<{ token: string }>("/auth/login", credentials);
-  },
-
-  async logout() {
-    return post<void>("/auth/logout", {});
-  },
-
-  async getProfile() {
-    return get<UserProfile>("/auth/profile");
-  },
-};
-
-// API endpoints grouped by feature
 export const api = {
   products: {
     list: () => get<Product[]>("/products"),
@@ -143,18 +118,14 @@ export const api = {
     sales: (params: ReportParams) => {
       const searchParams = new URLSearchParams();
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
-          searchParams.append(key, String(value));
-        }
+        if (value !== undefined) searchParams.append(key, String(value));
       });
       return get<SalesReport>("/reports/sales?" + searchParams.toString());
     },
     inventory: (params: ReportParams) => {
       const searchParams = new URLSearchParams();
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
-          searchParams.append(key, String(value));
-        }
+        if (value !== undefined) searchParams.append(key, String(value));
       });
       return get<InventoryReport>(
         "/reports/inventory?" + searchParams.toString()
@@ -163,9 +134,7 @@ export const api = {
     finance: (params: ReportParams) => {
       const searchParams = new URLSearchParams();
       Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
-          searchParams.append(key, String(value));
-        }
+        if (value !== undefined) searchParams.append(key, String(value));
       });
       return get<FinanceReport>("/reports/finance?" + searchParams.toString());
     },

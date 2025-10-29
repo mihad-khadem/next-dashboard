@@ -30,18 +30,13 @@ export default function CustomersPage() {
     }
   };
 
-  const handleCreate = async (
-    values: Omit<
-      Customer,
-      "id" | "createdAt" | "totalPurchases" | "loyaltyPoints"
-    >
-  ) => {
+  const handleCreate = async (values: Customer) => {
     try {
       await posApi.createCustomer({
         ...values,
         loyaltyPoints: 0,
         totalPurchases: 0,
-      });
+      } as Customer);
       message.success("Customer created successfully");
       setModalVisible(false);
       form.resetFields();

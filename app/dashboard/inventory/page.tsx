@@ -54,7 +54,7 @@ export default function InventoryPage() {
             key={index}
             title={stat.title}
             value={stat.value}
-            icon={stat.icon}
+            icon={stat?.icon}
             className="relative overflow-hidden"
           >
             <span

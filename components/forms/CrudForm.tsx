@@ -70,7 +70,7 @@ export function CrudForm({
             ...(field.required
               ? [{ required: true, message: `${field.label} is required` }]
               : []),
-            ...(field.rules || []),
+            ...(field?.rules || []),
           ]}
         >
           {renderField(field)}

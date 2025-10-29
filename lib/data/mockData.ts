@@ -202,7 +202,7 @@ export const recentOrders: Order[] = [
     tax: 13.0,
     discount: 0,
     total: 142.99,
-    status: "completed",
+    orderStatus: "completed",
     paymentStatus: "completed",
     paymentMethod: "cash",
     createdAt: "2023-10-25T15:45:00Z",

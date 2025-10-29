@@ -1,160 +1,182 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import type { RootState } from "../../../store";
-import {
-  addToCart,
-  updateQuantity,
-  applyDiscount,
-  clearCart,
-} from "../../../store/slices/posSlice";
-import { Card, Row, Col, Input, Button, Select } from "antd";
-import { SearchOutlined, BarcodeOutlined } from "@ant-design/icons";
-import { posApi } from "../../../lib/api/pos";
-import type { Product, Customer } from "../../../types/pos";
-
+import React, { useState, useEffect } from "react";
 import POSCart from "@/components/pos/POSCart";
 import POSProductCard from "@/components/pos/POSProductCard";
 import POSPaymentModal from "@/components/pos/POSPaymentModal";
 import POSHoldOrderModal from "@/components/pos/POSHoldOrderModal";
 import POSDiscountModal from "@/components/pos/POSDiscountModal";
-import StatWidget from "@/components/widgets/StatWidget";
-import OverviewChart from "@/components/charts/OverviewChart";
+import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
+import { RootState } from "@/store";
+import {
+  addToCart,
+  clearCart,
+  holdOrder,
+  applyDiscount,
+  updateQuantity,
+  loadHeldOrder,
+} from "@/store/slices/posSlice";
+import type { Product, Customer } from "@/types/pos";
+import { productsSample } from "@/data";
 
 export default function POSPage() {
-  const dispatch = useDispatch();
-  const { cart, loading } = useSelector((state: RootState) => state.pos);
+  const dispatch = useAppDispatch();
+  const {
+    products: storeProducts,
+    customers: storeCustomers,
+    cart,
+  } = useAppSelector((state: RootState) => state.pos);
 
-  const [products, setProducts] = useState<Product[]>([]);
+  // Local state for modals and selected customer
+  const [selectedCustomer, setSelectedCustomer] = useState<
+    string | undefined
+  >();
+  const [showPayment, setShowPayment] = useState(false);
+  const [showHoldOrder, setShowHoldOrder] = useState(false);
+  const [showDiscount, setShowDiscount] = useState(false);
+
+  // 🔹 Mock data for testing
+  const [products, setProducts] = useState<Product[]>(productsSample);
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [selectedCustomer, setSelectedCustomer] = useState<string>();
-  const [paymentModal, setPaymentModal] = useState(false);
-  const [holdOrderModal, setHoldOrderModal] = useState(false);
-  const [discountModal, setDiscountModal] = useState(false);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [scanning, setScanning] = useState(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [productsRes, customersRes] = await Promise.all([
-          posApi.getProducts(),
-          posApi.getCustomers(),
-        ]);
-        setProducts(productsRes.data);
-        setCustomers(customersRes.data);
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-      }
-    };
-    fetchData();
-  }, []);
+    // Initialize with mock data if store is empty
+    setProducts(
+      storeProducts.length
+        ? storeProducts
+        : [
+            {
+              id: "p1",
+              name: "Apple",
+              sku: "A001",
+              category: "Fruit",
+              price: 1,
+              stock: 100,
+            },
+            {
+              id: "p2",
+              name: "Banana",
+              sku: "B001",
+              category: "Fruit",
+              price: 0.5,
+              stock: 50,
+            },
+            {
+              id: "p3",
+              name: "Orange",
+              sku: "O001",
+              category: "Fruit",
+              price: 1.2,
+              stock: 80,
+            },
+            {
+              id: "p4",
+              name: "Milk",
+              sku: "M001",
+              category: "Dairy",
+              price: 2,
+              stock: 30,
+            },
+            {
+              id: "p5",
+              name: "Bread",
+              sku: "B002",
+              category: "Bakery",
+              price: 1.5,
+              stock: 40,
+            },
+          ]
+    );
 
-  const filteredProducts = products.filter(
-    (product) =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.sku.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (product.barcode && product.barcode.includes(searchTerm))
-  );
+    setCustomers(
+      storeCustomers.length
+        ? storeCustomers
+        : [
+            {
+              id: "c1",
+              name: "John Doe",
+              email: "johndoe@example.com",
+              phone: "1234567890",
+              totalPurchases: 0,
+            },
+            {
+              id: "c2",
+              name: "John Doe",
+              email: "johndoe@example.com",
+              phone: "1234567890",
+              totalPurchases: 0,
+            },
+          ]
+    );
+  }, [storeProducts, storeCustomers]);
 
-  const handleProductSelect = (productId: string) => {
+  // Handlers
+  const handleSelectProduct = (productId: string) => {
     dispatch(addToCart({ productId, quantity: 1 }));
   };
 
-  const handleScanBarcode = () => {
-    setScanning(true);
-    const searchInput = document.querySelector(
-      'input[placeholder="Search products..."]'
-    );
-    if (searchInput) (searchInput as HTMLInputElement).focus();
+  const handleCheckout = () => setShowPayment(true);
+  const handleHoldOrder = () => setShowHoldOrder(true);
+  const handleDiscount = () => setShowDiscount(true);
+
+  const handleApplyDiscount = (type: "percentage" | "fixed", value: number) => {
+    dispatch(applyDiscount({ type, value }));
+    setShowDiscount(false);
+  };
+
+  const handleCompletePayment = (values: any) => {
+    // Replace with real API call if needed
+    dispatch(clearCart());
+    setShowPayment(false);
+  };
+
+  const handleHold = (note: string) => {
+    dispatch(holdOrder({ note, customerId: selectedCustomer }));
+    setShowHoldOrder(false);
   };
 
   return (
-    <div className="p-6">
-      {/* Top stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
-        <StatWidget title="Today's Sales" value="$1,240" />
-        <StatWidget title="Transactions" value="32" />
-        <StatWidget title="Avg. Basket" value="$38.75" />
-        <StatWidget title="Open Orders" value="3" />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <OverviewChart className="h-[220px]" />
-        <OverviewChart className="h-[220px]" />
-      </div>
-
-      <Row gutter={[16, 16]}>
-        {/* Products */}
-        <Col xs={24} lg={16}>
-          <Card title="Products">
-            <div className="mb-4 flex gap-2">
-              <Input
-                placeholder="Search products..."
-                prefix={<SearchOutlined />}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              <Button
-                icon={<BarcodeOutlined />}
-                loading={scanning}
-                onClick={handleScanBarcode}
-              >
-                Scan
-              </Button>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {filteredProducts.map((product) => (
-                <POSProductCard
-                  key={product.id}
-                  product={product}
-                  onSelect={() => handleProductSelect(product.id)}
-                />
-              ))}
-            </div>
-          </Card>
-        </Col>
-
-        {/* Cart */}
-        <Col xs={24} lg={8}>
-          <POSCart
-            cart={cart}
-            customers={customers}
-            selectedCustomer={selectedCustomer}
-            onCustomerChange={setSelectedCustomer}
-            onClearCart={() => dispatch(clearCart())}
-            onOpenPayment={() => setPaymentModal(true)}
-            onOpenHoldOrder={() => setHoldOrderModal(true)}
-            onOpenDiscount={() => setDiscountModal(true)}
-            onUpdateQuantity={(productId, quantity) =>
-              dispatch(updateQuantity({ productId, quantity }))
-            }
+    <div className="flex gap-4 p-4">
+      {/* Products list */}
+      <div className="grid grid-cols-3 gap-4 flex-1">
+        {products.map((product) => (
+          <POSProductCard
+            key={product.id}
+            product={product}
+            onSelect={handleSelectProduct}
           />
-        </Col>
-      </Row>
+        ))}
+      </div>
+
+      {/* Cart */}
+      <div className="w-1/3">
+        <POSCart
+          products={products}
+          customers={customers}
+          selectedCustomer={selectedCustomer}
+          onCustomerChange={setSelectedCustomer}
+          onCheckout={handleCheckout}
+          onDiscount={handleDiscount}
+          onHoldOrder={handleHoldOrder}
+        />
+      </div>
 
       {/* Modals */}
       <POSPaymentModal
-        visible={paymentModal}
-        onClose={() => setPaymentModal(false)}
-        cart={cart}
-        selectedCustomer={selectedCustomer}
-        onCheckout={() => setPaymentModal(false)}
+        visible={showPayment}
+        total={cart.total}
+        onCancel={() => setShowPayment(false)}
+        onCheckout={handleCompletePayment}
       />
-
       <POSHoldOrderModal
-        visible={holdOrderModal}
-        onClose={() => setHoldOrderModal(false)}
+        visible={showHoldOrder}
+        onCancel={() => setShowHoldOrder(false)}
+        onHold={handleHold}
       />
-
       <POSDiscountModal
-        visible={discountModal}
-        onClose={() => setDiscountModal(false)}
-        onApply={(type, value) =>
-          dispatch(applyDiscount({ type, value: parseFloat(value) }))
-        }
+        visible={showDiscount}
+        onCancel={() => setShowDiscount(false)}
+        onApply={handleApplyDiscount}
       />
     </div>
   );

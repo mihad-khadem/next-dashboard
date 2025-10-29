@@ -1,14 +1,21 @@
 "use client";
+
 import React from "react";
-import { Table, Input, Button } from "antd";
+import { Table, Input, Button, Select } from "antd";
 import type { RootState } from "@/store";
-import { useDispatch, useSelector } from "react-redux";
-import { updateQuantity, clearCart } from "@/store/slices/posSlice";
-import type { Product } from "@/types/pos";
+import {
+  updateQuantity,
+  removeFromCart,
+  clearCart,
+} from "@/store/slices/posSlice";
+import type { Product, Customer } from "@/types/pos";
+import { useAppDispatch, useAppSelector } from "@/hooks/useRedux";
 
 interface POSCartProps {
   products: Product[];
-  selectedCustomer: string | undefined;
+  customers: Customer[];
+  selectedCustomer?: string;
+  onCustomerChange?: (customerId: string | undefined) => void;
   onCheckout: () => void;
   onDiscount: () => void;
   onHoldOrder: () => void;
@@ -16,13 +23,15 @@ interface POSCartProps {
 
 export default function POSCart({
   products,
+  customers,
   selectedCustomer,
+  onCustomerChange,
   onCheckout,
   onDiscount,
   onHoldOrder,
 }: POSCartProps) {
-  const dispatch = useDispatch();
-  const { cart, loading } = useSelector((state: RootState) => state.pos);
+  const dispatch = useAppDispatch();
+  const { cart, loading } = useAppSelector((state: RootState) => state.pos);
 
   const columns = [
     {
@@ -53,9 +62,9 @@ export default function POSCart({
     {
       title: "Price",
       dataIndex: "price",
-      render: (_: any, record: { productId: string; quantity: number }) => {
+      render: (_: any, record: { productId: string }) => {
         const product = products.find((p) => p.id === record.productId);
-        return `$${product?.price.toFixed(2)}`;
+        return `$${(product?.price ?? 0).toFixed(2)}`;
       },
     },
     {
@@ -63,13 +72,43 @@ export default function POSCart({
       dataIndex: "total",
       render: (_: any, record: { productId: string; quantity: number }) => {
         const product = products.find((p) => p.id === record.productId);
-        return `$${(product?.price * record.quantity).toFixed(2)}`;
+        return `$${((product?.price ?? 0) * record.quantity).toFixed(2)}`;
       },
+    },
+    {
+      title: "Action",
+      dataIndex: "action",
+      render: (_: any, record: { productId: string }) => (
+        <Button
+          danger
+          onClick={() => dispatch(removeFromCart(record.productId))}
+        >
+          Remove
+        </Button>
+      ),
     },
   ];
 
   return (
     <div>
+      {/* Customer select */}
+      <div className="mb-2">
+        <Select
+          placeholder="Select Customer"
+          value={selectedCustomer}
+          onChange={onCustomerChange}
+          style={{ width: "100%" }}
+          allowClear
+        >
+          {customers.map((c) => (
+            <Select.Option key={c.id} value={c.id}>
+              {c.name}
+            </Select.Option>
+          ))}
+        </Select>
+      </div>
+
+      {/* Cart Table */}
       <Table
         columns={columns}
         dataSource={cart.items}
@@ -77,6 +116,8 @@ export default function POSCart({
         pagination={false}
         loading={loading}
       />
+
+      {/* Cart Summary */}
       <div className="mt-4 space-y-2">
         <div className="flex justify-between">
           <span>Subtotal:</span>
@@ -95,6 +136,7 @@ export default function POSCart({
           <span>${cart.total.toFixed(2)}</span>
         </div>
 
+        {/* Action Buttons */}
         <div className="flex gap-2 mt-2">
           <Button
             type="primary"

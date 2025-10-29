@@ -8,3 +8,12 @@ export type MenuItem = {
   icon?: ReactNode;
   children?: MenuItem[];
 };
+export interface DashboardUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+  avatar: string;
+  lastActive: string;
+}
